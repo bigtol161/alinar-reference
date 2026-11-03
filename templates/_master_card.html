@@ -1,0 +1,38 @@
+{% load nt_tags %}
+<article class="master-card">
+  <div class="mc-top">
+    <span class="avatar cat-{{ master.category.slug }}">{{ master.name|initials }}</span>
+    <div class="mc-id">
+      <a class="mc-name" href="{% url 'core:master' master.slug %}">{{ master.name }}</a>
+      <span class="mc-title">{{ master.title }} · {{ master.category.short }}</span>
+    </div>
+    {% if master.verified %}<span class="badge badge-verified" title="Документы подтверждены">{% icon 'shield' %} Проверен</span>{% endif %}
+  </div>
+  <div class="mc-rating">
+    {% if master.is_new %}
+      <span class="badge badge-new">Новый мастер</span>
+    {% else %}
+      <span class="stars"><span class="stars-fill" style="width: {% star_pct master.rating %}%"></span></span>
+      <b>{{ master.rating|floatformat:1 }}</b>
+      <span class="muted">{{ master.reviews_count|review_word }}</span>
+    {% endif %}
+  </div>
+  <div class="mc-meta">
+    <span class="meta-item">
+      {% icon 'pin' %}
+      {% if master.districts.all %}
+        {% for d in master.districts.all|slice:':2' %}{{ d.name }}{% if not forloop.last %}, {% endif %}{% endfor %}{% if master.districts.count > 2 %} +{{ master.districts.count|add:'-2' }}{% endif %}
+      {% else %}Весь город{% endif %}
+    </span>
+    <span class="meta-item">{% icon 'briefcase' %}Опыт {{ master.experience }} {{ master.experience|years_word }}</span>
+    <span class="meta-item">{% icon 'check' %}{{ master.completed|order_word }}</span>
+    {% if master.online %}<span class="meta-item online-dot">Онлайн</span>{% endif %}
+  </div>
+  <div class="mc-foot">
+    <div class="mc-price">от <b>{{ master.price_from }}</b> ₽</div>
+    <div class="mc-actions">
+      <a class="btn btn-outline btn-sm" href="{% url 'core:master' master.slug %}">Профиль</a>
+      <a class="btn btn-primary btn-sm" href="{% url 'core:request_new_master' master.slug %}">Заказать</a>
+    </div>
+  </div>
+</article>

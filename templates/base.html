@@ -1,0 +1,76 @@
+{% load static nt_tags %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}НадоТУТ — мастера и услуги в Ростове-на-Дону{% endblock %}</title>
+<meta name="description" content="{% block meta_desc %}Агрегатор услуг НадоТУТ: проверенные мастера Ростова-на-Дону, отзывы, цены, заявки онлайн.{% endblock %}">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23ff5a1f'/%3E%3Ctext x='16' y='22' font-size='15' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'%3E%D0%9D%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="{% url 'core:index' %}">Надо<span>ТУТ</span><small>Ростов-на-Дону</small></a>
+    <nav class="nav" id="nav">
+      <a href="{% url 'core:catalog' %}">Каталог мастеров</a>
+      <a href="{% url 'core:index' %}#how">Как это работает</a>
+      <a href="{% url 'core:become_master' %}">Стать мастером</a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'core:account' %}">Кабинет</a>
+        <form method="post" action="{% url 'core:sign_out' %}" class="inline-form">{% csrf_token %}<button class="link-btn" type="submit">Выйти</button></form>
+      {% else %}
+        <a href="{% url 'core:sign_in' %}">Войти</a>
+      {% endif %}
+      <a class="nav-phone" href="tel:+78633000000">{% icon 'phone' %} +7 (863) 300-00-00</a>
+      <a class="btn btn-primary nav-cta" href="{% url 'core:request_new' %}">Оставить заявку</a>
+    </nav>
+    <button class="burger" id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+{% if messages %}
+<div class="toast-wrap" id="toast-wrap">
+  {% for message in messages %}<div class="toast t-{{ message.tags }}">{{ message }}</div>{% endfor %}
+</div>
+{% endif %}
+
+<main>
+{% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-col footer-about">
+      <a class="logo" href="{% url 'core:index' %}">Надо<span>ТУТ</span><small>Ростов-на-Дону</small></a>
+      <p>Агрегатор бытовых и профессиональных услуг. Проверенные мастера, честные отзывы и цены.</p>
+      <div class="footer-contacts">
+        <a href="tel:+78633000000">{% icon 'phone' %} +7 (863) 300-00-00</a>
+        <a href="mailto:hello@nadotut.ru">hello@nadotut.ru</a>
+        <span>{% icon 'clock' %} Ежедневно 8:00–21:00</span>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Категории</h4>
+      <ul>
+        {% for c in footer_categories %}<li><a href="{% url 'core:catalog' %}?cat={{ c.slug }}">{{ c.name }}</a></li>{% endfor %}
+        <li><a href="{% url 'core:catalog' %}">Все категории</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Сервис</h4>
+      <ul>
+        <li><a href="{% url 'core:catalog' %}">Каталог мастеров</a></li>
+        <li><a href="{% url 'core:request_new' %}">Оставить заявку</a></li>
+        <li><a href="{% url 'core:become_master' %}">Стать мастером</a></li>
+        <li><a href="{% url 'core:account' %}">Личный кабинет</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="container footer-bottom">© 2026 НадоТУТ · Демо-проект: мастера, отзывы и цены вымышленные</div>
+</footer>
+
+<script src="{% static 'js/app.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load nt_tags %}
+
+{% block title %}Личный кабинет — НадоТУТ{% endblock %}
+
+{% block content %}
+<div class="container narrow">
+  <h1>Личный кабинет</h1>
+  <div class="tabs">
+    <a class="tab-btn {% if tab == 'requests' %}active{% endif %}" href="?tab=requests">Мои заявки</a>
+    <a class="tab-btn {% if tab == 'responses' %}active{% endif %}" href="?tab=responses">Отклики мастеров</a>
+    <a class="tab-btn {% if tab == 'profile' %}active{% endif %}" href="?tab=profile">Профиль</a>
+  </div>
+
+  {% if tab == 'requests' %}
+    {% if my_requests %}
+    <div class="stack">
+      {% for r in my_requests %}
+      <div class="req-card">
+        <div class="req-top">
+          <b>{{ r.number }}</b>
+          <span class="status {{ r.status_display_cls }}">{{ r.get_status_display }}</span>
+        </div>
+        <p class="req-service">{{ r.service|default:'Без описания' }}{% if r.category %} · {{ r.category.name }}{% endif %}</p>
+        <p class="muted small">
+          {{ r.created_at|date:'d.m.Y H:i' }}
+          {% if r.district %} · {{ r.district.name }}{% endif %}
+          {% if r.desired_date %} · к {{ r.desired_date|date:'d.m.Y' }}{% endif %}
+          {% if r.master %} · мастер: <a href="{% url 'core:master' r.master.slug %}">{{ r.master.name }}</a>{% endif %}
+        </p>
+        {% if r.status == 'new' or r.status == 'in_progress' %}
+        <form method="post" action="{% url 'core:cancel_request' r.pk %}">
+          {% csrf_token %}
+          <button class="btn btn-outline btn-sm" type="submit">Отменить заявку</button>
+        </form>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <h3>Заявок пока нет</h3>
+      <p>Оставьте первую заявку — мастера откликнутся с ценами.</p>
+      <a class="btn btn-primary" href="{% url 'core:request_new' %}">Оставить заявку</a>
+    </div>
+    {% endif %}
+  {% endif %}
+
+  {% if tab == 'responses' %}
+    {% for block in blocks %}
+      {% if block.responses %}
+      <div class="req-card">
+        <div class="req-top">
+          <b>Заявка {{ block.request.number }}</b>
+          <span class="muted small">{{ block.request.service }}</span>
+        </div>
+        <div class="stack">
+          {% for resp in block.responses %}
+          <div class="resp-card">
+            <span class="avatar sm cat-{{ resp.master.category.slug }}">{{ resp.master.name|initials }}</span>
+            <div class="resp-info">
+              <a href="{% url 'core:master' resp.master.slug %}"><b>{{ resp.master.name }}</b> · {{ resp.master.title }}</a>
+              <div class="rv-meta">
+                <span class="stars"><span class="stars-fill" style="width: {% star_pct resp.master.rating %}%"></span></span>
+                <span class="muted small">{{ resp.master.rating|floatformat:1 }} · {{ resp.master.reviews_count|review_word }}</span>
+              </div>
+              <p class="muted small">{{ resp.message }}</p>
+            </div>
+            <div class="resp-price">от {{ resp.price }} ₽</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    {% empty %}
+    <div class="empty-state">
+      <h3>Пока нет заявок</h3>
+      <p>Отклики появятся здесь после создания заявки.</p>
+      <a class="btn btn-primary" href="{% url 'core:request_new' %}">Оставить заявку</a>
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  {% if tab == 'profile' %}
+    <div class="panel profile-card">
+      <div class="rv-head">
+        <span class="rv-ava big">{{ user.first_name|initials|default:'Я' }}</span>
+        <div>
+          <b>{{ user.first_name|default:'Без имени' }}</b>
+          <p class="muted">{{ user.username|phone }}</p>
+        </div>
+      </div>
+      {% if profile %}
+      <div class="profile-master">
+        <p>Вы зарегистрированы как мастер: <b>{{ profile.title }}</b> · рейтинг {{ profile.rating|floatformat:1 }}</p>
+        <a class="btn btn-outline" href="{% url 'core:master' profile.slug %}">Мой профиль в каталоге</a>
+      </div>
+      {% else %}
+      <p class="muted">Хотите получать заказы? Зарегистрируйте профиль мастера.</p>
+      <a class="btn btn-primary" href="{% url 'core:become_master' %}">Стать мастером</a>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

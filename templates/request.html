@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load nt_tags %}
+
+{% block title %}Оставить заявку — НадоТУТ{% endblock %}
+
+{% block content %}
+<div class="container narrow">
+  <nav class="breadcrumbs"><a href="{% url 'core:index' %}">Главная</a><span>/</span><b>Заявка</b></nav>
+
+  {% if created %}
+  <div class="success-panel">
+    <div class="success-icon">{% icon 'check' %}</div>
+    <h1>Заявка {{ created.number }} отправлена</h1>
+    <p>
+      {% if created.master %}
+        Мастер <b>{{ created.master.name }}</b> получит её и свяжется с вами по телефону.
+      {% else %}
+        Мастера увидят заявку и откликнутся — предложения появятся в личном кабинете.
+      {% endif %}
+    </p>
+    <div class="center-row">
+      <a class="btn btn-primary" href="{% url 'core:account' %}">Мои заявки</a>
+      <a class="btn btn-outline" href="{% url 'core:catalog' %}">В каталог</a>
+    </div>
+  </div>
+  {% else %}
+  <div class="page-grid">
+    <section class="panel">
+      <h1>{% if master %}Заявка мастеру «{{ master.name }}»{% else %}Оставить заявку{% endif %}</h1>
+      <p class="muted">{% if master %}{{ master.title }} · {{ master.category.name }}{% else %}Опишите задачу — мастера откликнутся с ценами{% endif %}</p>
+      <form method="post" class="form-stack">
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="err-msg">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="form-grid">
+          <div class="field"><label>{{ form.category.label }}</label>{{ form.category }}{{ form.category.errors }}</div>
+          <div class="field"><label>{{ form.district.label }}</label>{{ form.district }}{{ form.district.errors }}</div>
+        </div>
+        <div class="field"><label>Что нужно сделать</label>{{ form.service }}{{ form.service.errors }}</div>
+        <div class="form-grid">
+          <div class="field"><label>Ваше имя</label>{{ form.name }}{{ form.name.errors }}</div>
+          <div class="field"><label>Телефон</label>{{ form.phone }}{{ form.phone.errors }}</div>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label>Желаемая дата</label>{{ form.desired_date }}{{ form.desired_date.errors }}</div>
+          <div class="field"><label>Бюджет, ₽</label>{{ form.budget }}{{ form.budget.errors }}</div>
+        </div>
+        <div class="field"><label>Комментарий</label>{{ form.comment }}{{ form.comment.errors }}</div>
+        <button class="btn btn-primary btn-lg btn-block" type="submit">Отправить заявку</button>
+        <p class="muted small">Отправляя заявку, вы соглашаетесь с обработкой персональных данных.</p>
+      </form>
+    </section>
+    <aside class="page-aside">
+      <div class="benefit">{% icon 'shield' %}<div><b>Проверенные мастера</b><p>Документы и опыт подтверждены платформой</p></div></div>
+      <div class="benefit">{% icon 'star' %}<div><b>Честные отзывы</b><p>Только от реальных клиентов после заказов</p></div></div>
+      <div class="benefit">{% icon 'clock' %}<div><b>Отклики быстро</b><p>Первые предложения обычно приходят в течение часа</p></div></div>
+    </aside>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load nt_tags %}
+
+{% block title %}{{ master.name }} — {{ master.title }} в Ростове-на-Дону | НадоТУТ{% endblock %}
+
+{% block content %}
+<div class="container">
+  <nav class="breadcrumbs">
+    <a href="{% url 'core:index' %}">Главная</a><span>/</span>
+    <a href="{% url 'core:catalog' %}">Каталог</a><span>/</span>
+    <a href="{% url 'core:catalog' %}?cat={{ master.category.slug }}">{{ master.category.name }}</a><span>/</span>
+    <b>{{ master.name }}</b>
+  </nav>
+
+  <section class="master-head panel">
+    <span class="avatar avatar-lg cat-{{ master.category.slug }}">{{ master.name|initials }}</span>
+    <div class="mh-info">
+      <div class="mh-name-row">
+        <h1>{{ master.name }}</h1>
+        {% if master.verified %}<span class="badge badge-verified">{% icon 'shield' %} Документы проверены</span>{% endif %}
+        {% if master.online %}<span class="badge badge-online">Онлайн</span>{% endif %}
+        {% if master.is_new %}<span class="badge badge-new">Новый мастер</span>{% endif %}
+      </div>
+      <p class="mh-sub">{{ master.title }} · {{ master.category.name }}</p>
+      <div class="mh-rating">
+        {% if not master.is_new %}
+          <span class="stars"><span class="stars-fill" style="width: {% star_pct master.rating %}%"></span></span>
+          <b>{{ master.rating|floatformat:1 }}</b>
+          <a href="#reviews" class="muted">{{ master.reviews_count|review_word }}</a>
+        {% else %}
+          <span class="muted">Отзывов пока нет — станьте первым</span>
+        {% endif %}
+      </div>
+      <div class="mh-meta">
+        <span>{% icon 'pin' %}{% if master.districts.all %}{% for d in master.districts.all %}{{ d.name }}{% if not forloop.last %}, {% endif %}{% endfor %}{% else %}Весь город, выезд{% endif %}</span>
+        <span>{% icon 'briefcase' %}Опыт {{ master.experience }} {{ master.experience|years_word }}</span>
+        <span>{% icon 'check' %}{{ master.completed|order_word }} выполнено</span>
+      </div>
+    </div>
+    <div class="mh-actions">
+      <div class="mc-price big">от <b>{{ master.price_from }}</b> ₽</div>
+      <a class="btn btn-primary btn-block" href="{% url 'core:request_new_master' master.slug %}">Заказать мастера</a>
+      <a class="btn btn-outline btn-block" href="tel:{{ master.phone|dial }}">{% icon 'phone' %} {{ master.phone|phone }}</a>
+    </div>
+  </section>
+
+  <div class="master-body">
+    <div class="mb-main">
+      <section class="panel" id="services">
+        <h2>Услуги и цены</h2>
+        <div class="services-list">
+          {% for s in master.services.all %}
+          <div class="service-row">
+            <span class="sr-name">{{ s.name }}</span>
+            <span class="sr-dots"></span>
+            <span class="sr-price">{{ s.price }} ₽</span>
+          </div>
+          {% empty %}
+          <p class="muted">Услуги по запросу — уточняйте стоимость в заявке.</p>
+          {% endfor %}
+        </div>
+      </section>
+
+      {% if master.about %}
+      <section class="panel">
+        <h2>О мастере</h2>
+        <p>{{ master.about }}</p>
+      </section>
+      {% endif %}
+
+      <section class="panel" id="reviews">
+        <h2>Отзывы <span class="muted">({{ master.reviews_count }})</span></h2>
+        {% for r in reviews %}
+        <article class="review">
+          <div class="rv-head">
+            <span class="rv-ava">{{ r.author|initials }}</span>
+            <div>
+              <b class="rv-name">{{ r.author }}</b>
+              <div class="rv-meta">
+                <span class="stars"><span class="stars-fill" style="width: {% star_pct r.rating %}%"></span></span>
+                <span class="muted">{{ r.created_at|date:'d.m.Y' }}</span>
+              </div>
+            </div>
+          </div>
+          <p class="rv-text">{{ r.text }}</p>
+        </article>
+        {% empty %}
+        <p class="muted">Пока нет отзывов.</p>
+        {% endfor %}
+
+        <div class="review-form">
+          <h3>Оставить отзыв</h3>
+          <form method="post" action="#reviews">
+            {% csrf_token %}
+            {% if form.non_field_errors %}<div class="err-msg">{{ form.non_field_errors }}</div>{% endif %}
+            <div class="form-grid">
+              <div class="field">
+                <label>Оценка</label>
+                <div class="stars-input">
+                  {% for value in '54321'|split_digits %}
+                  <input id="star{{ value }}" type="radio" name="rating" value="{{ value }}" {% if form.rating.value|stringformat:'s' == value %}checked{% endif %}>
+                  <label for="star{{ value }}" title="{{ value }} из 5">{% icon 'star' %}</label>
+                  {% endfor %}
+                </div>
+                {{ form.rating.errors }}
+              </div>
+              <div class="field">
+                <label>Ваше имя</label>
+                {{ form.author }}
+                {{ form.author.errors }}
+              </div>
+            </div>
+            <div class="field">
+              <label>Отзыв</label>
+              {{ form.text }}
+              {{ form.text.errors }}
+            </div>
+            <button class="btn btn-primary" type="submit">Отправить отзыв</button>
+          </form>
+        </div>
+      </section>
+    </div>
+
+    <aside class="mb-side">
+      {% if similar %}
+      <section class="panel">
+        <h2>Похожие мастера</h2>
+        <div class="similar">
+          {% for m in similar %}{% include '_master_card.html' with master=m %}{% endfor %}
+        </div>
+      </section>
+      {% endif %}
+    </aside>
+  </div>
+</div>
+{% endblock %}

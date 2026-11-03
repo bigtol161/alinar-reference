@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load nt_tags %}
+
+{% block title %}Страница не найдена — НадоТУТ{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="empty-state big">
+    <h1>404</h1>
+    <h3>Страница не найдена</h3>
+    <p>Возможно, мастер переехал или ссылка устарела.</p>
+    <a class="btn btn-primary" href="{% url 'core:catalog' %}">В каталог мастеров</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load nt_tags %}
+
+{% block content %}
+<section class="hero">
+  <div class="container hero-inner">
+    <h1>Найдите проверенного мастера <span class="accent">в Ростове-на-Дону</span></h1>
+    <p class="hero-sub">Сантехники, репетиторы, клининг и ещё сотни услуг. Сравните цены и отзывы — выберите лучшего.</p>
+    <form class="hero-search" action="{% url 'core:catalog' %}" method="get">
+      <span class="hs-icon">{% icon 'search' %}</span>
+      <input type="text" name="q" id="hero-q" data-suggest="{% url 'core:suggest' %}" placeholder="Какая услуга нужна? Например: сантехник" autocomplete="off">
+      <button class="btn btn-primary" type="submit">Найти</button>
+      <div class="suggest" id="hero-suggest" hidden></div>
+    </form>
+    <div class="hero-tags">
+      <span class="hero-tags-label">Часто ищут:</span>
+      <a class="tag" href="{% url 'core:catalog' %}?q=сантехник">Сантехник</a>
+      <a class="tag" href="{% url 'core:catalog' %}?q=уборка">Уборка</a>
+      <a class="tag" href="{% url 'core:catalog' %}?q=репетитор">Репетитор</a>
+      <a class="tag" href="{% url 'core:catalog' %}?q=барбер">Барбер</a>
+      <a class="tag" href="{% url 'core:catalog' %}?q=грузчики">Грузчики</a>
+      <a class="tag" href="{% url 'core:catalog' %}?q=фотограф">Фотограф</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><b>{{ masters_total }}</b><span>мастеров на сайте</span></div>
+      <div class="stat"><b>{{ reviews_total }}</b><span>отзывов клиентов</span></div>
+      <div class="stat"><b>{{ avg_rating|floatformat:1 }}</b><span>средний рейтинг</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="categories">
+  <div class="container">
+    <h2>Категории услуг</h2>
+    <div class="cat-grid">
+      {% for c in categories %}
+      <a class="cat-card" href="{% url 'core:catalog' %}?cat={{ c.slug }}">
+        <span class="cat-icon cat-{{ c.slug }}">{% icon c.icon %}</span>
+        <span class="cat-info"><b>{{ c.name }}</b><span>{{ c.description }}</span></span>
+        <span class="cat-count">{{ c.n }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt" id="how">
+  <div class="container">
+    <h2>Как это работает</h2>
+    <div class="steps">
+      <div class="step">
+        <span class="step-num">1</span>
+        <h3>Оставьте заявку</h3>
+        <p>Опишите задачу — это займёт минуту. Или выберите мастера из каталога напрямую.</p>
+      </div>
+      <div class="step">
+        <span class="step-num">2</span>
+        <h3>Получите отклики</h3>
+        <p>Мастера из вашего района откликнутся с ценами и сроками — предложения появятся в личном кабинете.</p>
+      </div>
+      <div class="step">
+        <span class="step-num">3</span>
+        <h3>Выберите лучшего</h3>
+        <p>Сравните рейтинги и отзывы, договоритесь напрямую, а после работы оставьте свой отзыв.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <h2>Топ мастеров месяца</h2>
+    <div class="cards-grid">
+      {% for master in top_masters %}{% include '_master_card.html' %}{% endfor %}
+    </div>
+    <div class="center">
+      <a class="btn btn-outline btn-lg" href="{% url 'core:catalog' %}">Смотреть всех мастеров {% icon 'arrow' %}</a>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="cta">
+      <div class="cta-text">
+        <h2>Вы мастер? Получайте заказы</h2>
+        <ul class="cta-list">
+          <li>{% icon 'check' %}Бесплатное размещение профиля</li>
+          <li>{% icon 'check' %}Отклики на заявки из вашего района</li>
+          <li>{% icon 'check' %}Профиль с отзывами и рейтингом</li>
+        </ul>
+      </div>
+      <a class="btn btn-primary btn-lg" href="{% url 'core:become_master' %}">Стать мастером</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

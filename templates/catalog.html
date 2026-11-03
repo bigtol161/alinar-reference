@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load nt_tags %}
+
+{% block title %}Каталог мастеров — НадоТУТ Ростов-на-Дону{% endblock %}
+
+{% block content %}
+<div class="container">
+  <nav class="breadcrumbs">
+    <a href="{% url 'core:index' %}">Главная</a><span>/</span><b>{% if active_category %}{{ active_category.name }}{% else %}Каталог{% endif %}</b>
+  </nav>
+  <div class="catalog-head">
+    <h1>{% if active_category %}{{ active_category.name }}{% else %}Каталог мастеров{% endif %}</h1>
+    <p class="muted">Найдено: {{ total }} мастеров · Ростов-на-Дону</p>
+  </div>
+
+  <form method="get" action="{% url 'core:catalog' %}" class="catalog-layout" id="catalog-form" data-autosubmit>
+    <aside class="filters" id="filters">
+      <div class="filters-head"><span>Фильтры</span><a class="link-btn" href="{% url 'core:catalog' %}">Сбросить</a></div>
+      <div class="fgroup">
+        <h4>Категория</h4>
+        <label class="radio"><input type="radio" name="cat" value="" {% if not filters.cat %}checked{% endif %}><span>Все категории</span></label>
+        {% for c in categories %}
+        <label class="radio"><input type="radio" name="cat" value="{{ c.slug }}" {% if filters.cat == c.slug %}checked{% endif %}><span>{{ c.name }}</span></label>
+        {% endfor %}
+      </div>
+      <div class="fgroup">
+        <h4>Район</h4>
+        <select name="district">
+          <option value="">Все районы</option>
+          {% for d in districts %}<option value="{{ d.pk }}" {% if filters.district == d.pk|stringformat:'s' %}selected{% endif %}>{{ d.name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="fgroup">
+        <h4>Цена от, ₽</h4>
+        <div class="price-row">
+          <input type="number" min="0" name="min" value="{{ filters.min }}" placeholder="от">
+          <input type="number" min="0" name="max" value="{{ filters.max }}" placeholder="до">
+        </div>
+      </div>
+      <div class="fgroup">
+        <h4>Рейтинг</h4>
+        <select name="rating">
+          <option value="">Любой</option>
+          <option value="4.5" {% if filters.rating == '4.5' %}selected{% endif %}>от 4.5</option>
+          <option value="4.8" {% if filters.rating == '4.8' %}selected{% endif %}>от 4.8</option>
+          <option value="4.9" {% if filters.rating == '4.9' %}selected{% endif %}>от 4.9</option>
+        </select>
+      </div>
+      <div class="fgroup">
+        <label class="check"><input type="checkbox" name="verified" value="1" {% if filters.verified %}checked{% endif %}><span>Только проверенные</span></label>
+        <label class="check"><input type="checkbox" name="online" value="1" {% if filters.online %}checked{% endif %}><span>Сейчас онлайн</span></label>
+      </div>
+    </aside>
+
+    <div class="results">
+      <div class="toolbar">
+        <div class="toolbar-search">
+          {% icon 'search' %}
+          <input type="text" name="q" value="{{ filters.q }}" placeholder="Поиск: услуга или мастер">
+        </div>
+        <select name="sort" aria-label="Сортировка">
+          {% for key, val in sorts.items %}<option value="{{ key }}" {% if filters.sort == key %}selected{% endif %}>{{ val.0 }}</option>{% endfor %}
+        </select>
+        <button class="btn btn-outline filters-toggle" type="button" id="filters-toggle">Фильтры</button>
+      </div>
+
+      {% if page_obj.object_list %}
+      <div class="cards-grid">
+        {% for master in page_obj.object_list %}{% include '_master_card.html' %}{% endfor %}
+      </div>
+      {% if page_obj.has_other_pages %}
+      <nav class="pager">
+        {% if page_obj.has_previous %}<a class="btn btn-outline btn-sm" href="?{{ qs }}&amp;page={{ page_obj.previous_page_number }}">Назад</a>{% endif %}
+        <span class="pager-info">Стр. {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}<a class="btn btn-outline btn-sm" href="?{{ qs }}&amp;page={{ page_obj.next_page_number }}">Вперёд</a>{% endif %}
+      </nav>
+      {% endif %}
+      {% else %}
+      <div class="empty-state">
+        <h3>Ничего не найдено</h3>
+        <p>Попробуйте изменить запрос или сбросить фильтры.</p>
+        <a class="btn btn-primary" href="{% url 'core:catalog' %}">Сбросить фильтры</a>
+      </div>
+      {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}

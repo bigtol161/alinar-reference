@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load nt_tags %}
+
+{% block title %}Вход — НадоТУТ{% endblock %}
+
+{% block content %}
+<div class="container auth-wrap">
+  <div class="auth-card panel">
+    <h1>Вход в кабинет</h1>
+    <p class="muted">Войдите по номеру телефона.</p>
+    <form method="post" class="form-stack">
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="err-msg">{{ form.non_field_errors }}</div>{% endif %}
+      <div class="field"><label>{{ form.phone.label }}</label>{{ form.phone }}{{ form.phone.errors }}</div>
+      <div class="field"><label>{{ form.password.label }}</label>{{ form.password }}{{ form.password.errors }}</div>
+      <button class="btn btn-primary btn-block btn-lg" type="submit">Войти</button>
+    </form>
+    <p class="auth-alt">Нет аккаунта? <a href="{% url 'core:sign_up' %}">Зарегистрироваться</a></p>
+  </div>
+</div>
+{% endblock %}

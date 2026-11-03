@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load nt_tags %}
+
+{% block title %}Стать мастером — НадоТУТ{% endblock %}
+
+{% block content %}
+<div class="container narrow">
+  <nav class="breadcrumbs"><a href="{% url 'core:index' %}">Главная</a><span>/</span><b>Стать мастером</b></nav>
+
+  <div class="page-grid">
+    <section class="panel">
+      <h1>Регистрация мастера</h1>
+      <p class="muted">Профиль появится в каталоге сразу после заполнения анкеты.</p>
+      <form method="post" class="form-stack">
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="err-msg">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="form-grid">
+          <div class="field"><label>{{ form.name.label }}</label>{{ form.name }}{{ form.name.errors }}</div>
+          <div class="field"><label>{{ form.phone.label }}</label>{{ form.phone }}{{ form.phone.errors }}</div>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label>{{ form.category.label }}</label>{{ form.category }}{{ form.category.errors }}</div>
+          <div class="field"><label>{{ form.title.label }}</label>{{ form.title }}{{ form.title.errors }}</div>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label>{{ form.experience.label }}</label>{{ form.experience }}{{ form.experience.errors }}</div>
+          <div class="field"><label>{{ form.price_from.label }}</label>{{ form.price_from }}{{ form.price_from.errors }}</div>
+        </div>
+        <div class="field">
+          <label>Районы работы</label>
+          <div class="checks-grid">{{ form.districts }}</div>
+          {{ form.districts.errors }}
+        </div>
+        <div class="field check">
+          {{ form.verified }}
+          <label for="{{ form.verified.id_for_label }}">{{ form.verified.label }}</label>
+          {{ form.verified.errors }}
+        </div>
+        <div class="field"><label>{{ form.about.label }}</label>{{ form.about }}{{ form.about.errors }}</div>
+        <fieldset class="field">
+          <label>Услуги и цены (до трёх)</label>
+          {% for i in '123'|split_digits %}
+          <div class="service-input">
+            <input type="text" name="service_name_{{ i }}" placeholder="Например: замена смесителя">
+            <input type="number" min="0" name="service_price_{{ i }}" placeholder="Цена, ₽">
+          </div>
+          {% endfor %}
+        </fieldset>
+        <button class="btn btn-primary btn-lg btn-block" type="submit">Создать профиль мастера</button>
+        <p class="muted small">Нажимая кнопку, вы соглашаетесь с обработкой персональных данных.</p>
+      </form>
+    </section>
+    <aside class="page-aside">
+      <div class="benefit">{% icon 'check' %}<div><b>Бесплатно</b><p>Размещение профиля и отклики на заявки</p></div></div>
+      <div class="benefit">{% icon 'user' %}<div><b>Ваш профиль</b><p>Отзывы, рейтинг и услуги с ценами</p></div></div>
+      <div class="benefit">{% icon 'pin' %}<div><b>Заказы рядом</b><p>Заявки из выбранных районов города</p></div></div>
+    </aside>
+  </div>
+</div>
+{% endblock %}
